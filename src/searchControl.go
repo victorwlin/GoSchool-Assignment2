@@ -1,9 +1,19 @@
 package main
 
+import (
+	"errors"
+	"fmt"
+)
+
 func searchControl() {
 	sCon := true
 
 	friend, i := users[user].friends.seqSearch()
+
+	// if search is invalid, kick user back to friend menu
+	if friend == nil {
+		sCon = false
+	}
 
 	for sCon {
 		input := users[user].friends.searchView(*friend)
@@ -27,7 +37,12 @@ func searchControl() {
 		case 8:
 			sCon = false
 			fCon = false
+			uCon = false
 			exitCon = false
+		default:
+			fmt.Println(errors.New("Error in searchControl()"))
+
 		}
+
 	}
 }

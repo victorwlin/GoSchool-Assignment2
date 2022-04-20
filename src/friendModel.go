@@ -117,29 +117,67 @@ func deleteGroup() {
 	fmt.Scanln(&i)
 	group := users[user].groups[i-1]
 
-	runtime.GOMAXPROCS(2)
-	var wg sync.WaitGroup
-	wg.Add(2)
+	// this channel was added for practice
+	// it is definitely not required nor helpful in this situation
+	deleteList := make(chan []int)
 
-	// delete all friends in group
+	runtime.GOMAXPROCS(3)
+	var wg sync.WaitGroup
+	wg.Add(3)
+
+	// identify all occurences
 	go func() {
 		defer wg.Done()
 
-		// identify all occurences
-		deleteList := []int{}
+		tempList := []int{}
+
 		currentFriend := users[user].friends.head
 		for index := 0; index < users[user].friends.size; index++ {
 			if currentFriend.group == group {
-				deleteList = append(deleteList, index)
+				tempList = append(tempList, index)
 			}
 			currentFriend = currentFriend.next
 		}
 
-		// delete friends
-		for i, v := range deleteList {
-			users[user].friends.removeFriend(v - i)
-		}
+		deleteList <- tempList
+		close(deleteList)
 	}()
+
+	// delete all identified friends of the group
+	go func() {
+		defer wg.Done()
+
+		tempList, ok := <-deleteList
+
+		if !ok {
+			return
+		} else {
+			for i, v := range tempList {
+				users[user].friends.removeFriend(v - i)
+			}
+		}
+
+	}()
+
+	// // delete all friends in group
+	// go func() {
+	// 	defer wg.Done()
+
+	// 	// identify all occurences
+	// 	deleteList := []int{}
+	// 	currentFriend := users[user].friends.head
+	// 	for index := 0; index < users[user].friends.size; index++ {
+	// 		if currentFriend.group == group {
+	// 			deleteList = append(deleteList, index)
+	// 		}
+	// 		currentFriend = currentFriend.next
+	// 	}
+
+	// 	// delete friends
+	// 	for i, v := range deleteList {
+	// 		users[user].friends.removeFriend(v - i)
+	// 	}
+	// }()
 
 	// delete group from group slice
 	go func() {

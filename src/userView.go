@@ -9,7 +9,7 @@ import (
 func userView() (input string) {
 	for {
 		fmt.Println("")
-		fmt.Println("Welcome to Friend Tracker, an app that keeps you in touch with your friends.")
+		fmt.Println("Welcome to Friend Tracker, an app that keeps you in touch with your friends!")
 		fmt.Println("")
 		fmt.Println("USER PROFILES AND FUNCTIONS")
 
